@@ -1,0 +1,51 @@
+{
+  "entities": {
+    "user": {
+      "title": "User Profile",
+      "description": "User profile and role information",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "user"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "role"]
+    },
+    "accessRequest": {
+      "title": "Access Request",
+      "description": "Request for system access",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "status"]
+    },
+    "memory": {
+      "title": "Neural Memory",
+      "description": "Stored facts and preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "content": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "content"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "User profiles"
+    },
+    "/accessRequests/{requestId}": {
+      "schema": "accessRequest",
+      "description": "Access requests for admin approval"
+    },
+    "/memories/{memoryId}": {
+      "schema": "memory",
+      "description": "User-specific neural memories"
+    }
+  }
+}

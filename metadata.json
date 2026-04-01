@@ -1,0 +1,9 @@
+{
+  "name": "Jani AI",
+  "description": "Your devoted, masterful, and unfiltered AI companion. Created by SHAFQAT BALOCH.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera",
+    "geolocation"
+  ]
+}

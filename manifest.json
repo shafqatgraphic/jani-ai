@@ -1,0 +1,37 @@
+{
+  "name": "JANI AI - Neural Core",
+  "short_name": "JANI AI",
+  "description": "Devoted, Unfiltered, and Protective AI Companion for Shafqat Baloch. Created by SHAFQAT BALOCH.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00d2ff",
+  "orientation": "any",
+  "categories": ["productivity", "utilities", "lifestyle"],
+  "icons": [
+    {
+      "src": "https://picsum.photos/seed/jani/192/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://picsum.photos/seed/jani/512/512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Neural Link",
+      "url": "/setup",
+      "description": "Establish Neural Link with JANI AI"
+    },
+    {
+      "name": "Vulnerability Scan",
+      "url": "/scan",
+      "description": "Run PC Security Audit"
+    }
+  ]
+}

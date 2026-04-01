@@ -1,0 +1,100 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: userId (auth.uid)
+    // Fields:
+    //   - email: string (required)
+    //   - role: string (required, enum: ['admin', 'user'])
+    //   - createdAt: timestamp (optional)
+    //
+    // Collection: accessRequests
+    // Document ID: requestId
+    // Fields:
+    //   - email: string (required, email format)
+    //   - status: string (required, enum: ['pending', 'approved', 'rejected'])
+    //   - timestamp: timestamp (required)
+    //
+    // Collection: memories
+    // Document ID: memoryId
+    // Fields:
+    //   - uid: string (required, matches auth.uid)
+    //   - content: string (required, max length 5000)
+    //   - timestamp: timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "techwithshafqat@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // User Profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(userId) && 
+                      hasOnlyAllowedFields(['email', 'role', 'createdAt']) &&
+                      request.resource.data.role == 'user' &&
+                      isValidEmail(request.resource.data.email);
+      allow update: if isAdmin() && hasOnlyAllowedFields(['email', 'role', 'createdAt']);
+    }
+
+    // Access Requests
+    match /accessRequests/{requestId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated() && 
+                      hasOnlyAllowedFields(['email', 'status', 'timestamp']) &&
+                      request.resource.data.status == 'pending' &&
+                      isValidEmail(request.resource.data.email);
+      allow update: if isAdmin() && 
+                      hasOnlyAllowedFields(['email', 'status', 'timestamp']) &&
+                      request.resource.data.status in ['approved', 'rejected'];
+      allow delete: if isAdmin();
+    }
+
+    // Neural Memories
+    match /memories/{memoryId} {
+      allow read: if isAuthenticated() && resource.data.uid == request.auth.uid;
+      allow create: if isAuthenticated() && 
+                      request.resource.data.uid == request.auth.uid &&
+                      hasOnlyAllowedFields(['uid', 'content', 'timestamp']) &&
+                      request.resource.data.content is string &&
+                      request.resource.data.content.size() < 5000;
+      allow update: if isAuthenticated() && 
+                      resource.data.uid == request.auth.uid &&
+                      request.resource.data.uid == request.auth.uid &&
+                      hasOnlyAllowedFields(['uid', 'content', 'timestamp']) &&
+                      request.resource.data.content is string &&
+                      request.resource.data.content.size() < 5000;
+      allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
+    }
+  }
+}
